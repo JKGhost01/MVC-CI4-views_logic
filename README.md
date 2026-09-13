@@ -442,3 +442,185 @@ Persistencia de información
 Es una **convención arquitectónica empresarial basada en MVC y adaptada a CodeIgniter 4**, no una estructura obligatoria del framework.
 
 Por eso, al desarrollar nuevos módulos, lo más importante es mantener la misma separación y convención que utiliza el resto del sistema.
+
+---
+
+## 16. Organización por tabla de la base de datos
+
+Una característica adicional de la arquitectura utilizada en el proyecto es que la organización principal del código se realiza **por cada tabla de la base de datos**.
+
+Para cada tabla existe su propio conjunto de:
+
+- Modelo
+- Controlador
+- Vista
+
+Conceptualmente:
+
+```text
+TABLA DE BASE DE DATOS
+        │
+        ├── MODEL
+        │
+        ├── CONTROLLER
+        │
+        └── VIEW
+             │
+             ├── view/
+             ├── create/
+             ├── edit/
+             ├── delete/
+             └── list/
+```
+
+Por ejemplo, si existe una tabla `productos`, su estructura se organiza alrededor de esa tabla:
+
+```text
+productos
+│
+├── Controller
+├── Model
+└── View
+    ├── view/
+    ├── create/
+    ├── edit/
+    ├── delete/
+    └── list/
+```
+
+De esta manera, cada tabla mantiene encapsulados sus elementos de acceso a datos, enrutamiento y presentación.
+
+### Escala de la arquitectura
+
+Esta convención puede generar una estructura de proyecto considerablemente grande cuando la base de datos contiene muchas tablas.
+
+Por ejemplo, tomando como referencia una base de datos hipotética con **500 tablas**:
+
+```text
+500 tablas
+    │
+    ├── 500 modelos
+    ├── 500 controladores
+    └── 500 vistas
+```
+
+Esto representa aproximadamente **1.500 componentes principales** asociados directamente a las tablas.
+
+Si cada tabla organiza además sus vistas mediante cinco operaciones y cada operación mantiene los cinco archivos establecidos por la arquitectura:
+
+```text
+view/
+├── deny.php
+├── index.php
+├── validator.php
+├── form.php
+└── procesor.php
+```
+
+entonces cada tabla puede llegar a contener:
+
+```text
+5 operaciones × 5 archivos = 25 archivos de vista
+```
+
+Para 500 tablas:
+
+```text
+500 × 25 = 12.500 archivos de operación
+```
+
+Y si además se consideran los modelos, controladores y demás elementos estructurales, la cantidad total de directorios y archivos del proyecto puede crecer considerablemente.
+
+Esta gran cantidad de archivos **no representa necesariamente un error de arquitectura**. Es una consecuencia directa de la convención utilizada: priorizar la separación y encapsulación de cada tabla y de cada operación.
+
+### Objetivo de esta organización
+
+La finalidad principal es que, al trabajar sobre una tabla concreta, sea posible localizar rápidamente todos los elementos relacionados con ella.
+
+Por ejemplo:
+
+```text
+productos
+│
+├── Model
+│      └── consultas de productos
+│
+├── Controller
+│      └── rutas de productos
+│
+└── View
+       ├── view      → consultar / mostrar
+       ├── create    → crear
+       ├── edit      → editar
+       ├── delete    → eliminar
+       └── list      → listar
+```
+
+Esto mantiene la lógica de cada entidad separada de las demás y conserva la misma convención en todo el sistema, incluso cuando el proyecto alcanza una gran cantidad de tablas.
+
+---
+
+## 17. Estructura conceptual completa
+
+Teniendo en cuenta todas las características anteriores, la arquitectura completa puede visualizarse así:
+
+```text
+                         BASE DE DATOS
+                              │
+              ┌───────────────┼───────────────┐
+              │               │               │
+           TABLA 1         TABLA 2         TABLA N
+              │               │               │
+        ┌─────┴─────┐   ┌─────┴─────┐   ┌─────┴─────┐
+        │            │   │            │   │            │
+      MODEL     CONTROLLER       MODEL     CONTROLLER  ...
+        │            │             │            │
+        │            └─────────────┼────────────┘
+        │                          │
+        └──────────────┐           │
+                       ▼           ▼
+                       VIEW / MÓDULO
+                              │
+             ┌────────────────┼────────────────┐
+             │                │                │
+           view             create           edit
+             │                │                │
+           delete            list              │
+             │                │                │
+             └────────────────┼────────────────┘
+                              │
+                     index.php
+                              │
+                       ¿Tiene permiso?
+                         /         \
+                       NO           SÍ
+                       │             │
+                   deny.php       form.php
+                                     │
+                              validator.php
+                                     │
+                               procesor.php
+                                     │
+                                   MODEL
+                                     │
+                               BASE DE DATOS
+```
+
+El **layout global** permanece separado de esta estructura y funciona como la plantilla visual común de toda la aplicación:
+
+```text
+                         LAYOUT GLOBAL
+                              │
+                ┌─────────────┴─────────────┐
+                │                           │
+             SIDEBAR                     NAVBAR
+                │                           │
+                └─────────────┬─────────────┘
+                              │
+                         CONTENIDO
+                              │
+                              ▼
+                       VISTA DEL MÓDULO
+```
+
+El layout no consulta tablas ni contiene lógica específica de las entidades. Su función es proporcionar la estructura visual común y dejar un área donde cada módulo pueda renderizar su contenido.
