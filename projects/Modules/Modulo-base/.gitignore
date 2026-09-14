@@ -1,0 +1,47 @@
+# CodeIgniter 4
+/vendor/
+composer.lock
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+/writable/logs/*
+!/writable/logs/.gitkeep
+
+# Cache
+/writable/cache/*
+!/writable/cache/.gitkeep
+
+# Session
+/writable/session/*
+!/writable/session/.gitkeep
+
+# Debug toolbar
+/writable/debugbar/*
+!/writable/debugbar/.gitkeep
+
+# Tests
+/tests/_output/
+/tests/_support/_generated/
+
+# Uploads
+/writable/uploads/*
+!/writable/uploads/.gitkeep
+
+# Preload
+/preload.php
+
+# Composer
+vendor/
+*.zip
+*.tar.gz
